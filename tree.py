@@ -24,13 +24,38 @@ def split_dataset(X, y, feature_index, threshold):
     right_mask = ~left_mask   # everything not in left
     
     return X[left_mask], y[left_mask], X[right_mask], y[right_mask]
+def best_split(X, y):
+    """
+    Try all features and thresholds, return the one with lowest weighted Gini.
+    Returns: (best_feature_index, best_threshold, best_gini) or (None, None, None) if no split helps
+    """
+    n_samples, n_features = X.shape
+    best_gini = float('inf')
+    best_feature = None
+    best_threshold = None
+    
+    for feature_index in range(n_features):
+        thresholds = np.unique(X[:, feature_index])  # candidate split points
+        
+        for threshold in thresholds:
+            left_X, left_y, right_X, right_y = split_dataset(X, y, feature_index, threshold)
+            
+            if len(left_y) == 0 or len(right_y) == 0:
+                continue  # skip splits that don't actually divide the data
+            
+            # weighted average of the two groups' impurity
+            weighted_gini = (len(left_y) / n_samples) * gini_impurity(left_y) + \
+                             (len(right_y) / n_samples) * gini_impurity(right_y)
+            
+            if weighted_gini < best_gini:
+                best_gini = weighted_gini
+                best_feature = feature_index
+                best_threshold = threshold
+    
+    return best_feature, best_threshold, best_gini
 # --- temporary test, will remove later ---
-X_test = np.array([[1, 5], [2, 3], [3, 8], [4, 1]])
-y_test = np.array([0, 0, 1, 1])
+X_test = np.array([[2.5], [1.0], [3.5], [0.5], [4.0], [1.5]])
+y_test = np.array([1, 0, 1, 0, 1, 0])
 
-left_X, left_y, right_X, right_y = split_dataset(X_test, y_test, feature_index=0, threshold=2)
-
-print("Left X:", left_X)
-print("Left y:", left_y)
-print("Right X:", right_X)
-print("Right y:", right_y)
+feature, threshold, gini = best_split(X_test, y_test)
+print(f"Best feature: {feature}, Best threshold: {threshold}, Best gini: {gini}")
