@@ -39,5 +39,16 @@ pip install -r requirements.txt
 4. Run the training and overfitting demo:
 ```bash
 python train_test.py
+ ```
+
+## Correctness Verification
+
+Run the correctness harness to compare this implementation's predictions against scikit-learn's `DecisionTreeClassifier` (used here purely as a trusted reference for validation, not as part of the implementation itself):
+
+```bash
+python test_harness.py
 ```
+
+This checks that, using matching settings (Gini criterion, same `max_depth` and `min_samples_split`), the custom tree's predictions agree with sklearn's reference implementation above a set threshold, and reports PASS or FAIL accordingly.
+
 See `WRITEUP.md` for a full explanation of the implementation and results.
